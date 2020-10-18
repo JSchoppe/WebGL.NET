@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace Samples.Helpers
+namespace Demo.Helpers
 {
     public static class StampHelper
     {

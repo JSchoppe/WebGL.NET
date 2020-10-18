@@ -1,6 +1,6 @@
 ﻿using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     // Based on: https://webglfundamentals.org/webgl/lessons/webgl-image-processing.html
     public class Texture2D : BaseSample

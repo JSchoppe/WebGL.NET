@@ -1,4 +1,4 @@
-﻿namespace Samples
+﻿namespace Demo
 {
     public static class DemoImage
     {

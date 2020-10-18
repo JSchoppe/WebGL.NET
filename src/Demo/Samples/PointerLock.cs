@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using WaveEngine.Common.Math;
 using WebAssembly;
 
-namespace Samples
+namespace Demo
 {
     // https://www.html5rocks.com/en/tutorials/pointerlock/intro/
     public class PointerLock : ISample

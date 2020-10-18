@@ -2,7 +2,7 @@
 using WaveEngine.Common.Math;
 using WebAssembly;
 
-namespace Samples
+namespace Demo
 {
     public interface ISample
     {

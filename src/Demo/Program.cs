@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Reflection;
 using Humanizer;
-using Samples.Helpers;
+using Demo.Helpers;
 using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     class Program
     {

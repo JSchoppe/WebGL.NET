@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using SkiaSharp;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public class TexturedCubeFromAssets : BaseTexturedCube
     {

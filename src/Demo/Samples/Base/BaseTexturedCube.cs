@@ -2,7 +2,7 @@
 using WebAssembly;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     // Based on:
     // https://developer.mozilla.org/es/docs/Web/API/WebGL_API/Tutorial/Wtilizando_texturas_en_WebGL

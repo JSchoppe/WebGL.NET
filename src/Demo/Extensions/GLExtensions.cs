@@ -1,7 +1,7 @@
 ﻿using System;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public static class GLExtensions
     {

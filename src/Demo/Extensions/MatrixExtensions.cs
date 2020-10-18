@@ -1,6 +1,6 @@
 ﻿using WaveEngine.Common.Math;
 
-namespace Samples
+namespace Demo
 {
     public static class MatrixExtensions
     {

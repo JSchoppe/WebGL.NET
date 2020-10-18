@@ -2,7 +2,7 @@
 using WaveEngine.Common.Math;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public class RotatingCube : BaseSample
     {

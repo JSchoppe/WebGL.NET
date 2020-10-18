@@ -3,7 +3,7 @@ using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public abstract class BaseSample : ISample
     {

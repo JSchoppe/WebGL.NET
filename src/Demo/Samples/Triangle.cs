@@ -1,6 +1,6 @@
 ﻿using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public class Triangle : BaseSample
     {

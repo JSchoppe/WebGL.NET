@@ -1,6 +1,6 @@
 ﻿using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     // Translated from: https://stackoverflow.com/a/46806403
     public class DepthStencil : BaseSample

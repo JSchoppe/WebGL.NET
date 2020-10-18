@@ -3,12 +3,12 @@ using System.IO;
 using System.Threading.Tasks;
 using glTFLoader;
 using glTFLoader.Schema;
-using Samples.Helpers;
+using Demo.Helpers;
 using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public class LoadGLTF : BaseSample
     {

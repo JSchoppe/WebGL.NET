@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using WebAssembly;
 
-namespace Samples
+namespace Demo
 {
     public static class WasmResourceLoader
     {

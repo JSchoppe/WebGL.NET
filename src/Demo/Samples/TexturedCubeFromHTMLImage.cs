@@ -3,7 +3,7 @@ using WebAssembly;
 using WebAssembly.Host;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     public class TexturedCubeFromHTMLImage : BaseTexturedCube
     {

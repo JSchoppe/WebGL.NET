@@ -4,7 +4,7 @@ using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
 
-namespace Samples
+namespace Demo
 {
     // https://www.ibiblio.org/e-notes/webgl/gpu/bounce.htm
     // https://webglreport.com/?v=2
