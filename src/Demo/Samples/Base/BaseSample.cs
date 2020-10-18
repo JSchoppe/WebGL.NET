@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using SkiaSharp;
+using System.Threading.Tasks;
 using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
@@ -47,6 +48,7 @@ namespace Demo
 
             gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, clearColor.W);
             gl.Clear(WebGLRenderingContextBase.COLOR_BUFFER_BIT);
+
         }
 
         public virtual void Resize(int width, int height)

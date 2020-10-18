@@ -14,7 +14,6 @@
         <div id="feedback-body" class="container-fluid">
             <p id="loading"><i class="fa fa-refresh fa-spin" style="font-size:14px;margin-right:0.5em;"></i> Loading...</p>
         </div>
-
         <script type="text/javascript">
              var App = {
                 init: function () {
@@ -24,7 +23,14 @@
                     }
                     BINDING.call_static_method("[Demo] Demo.Program:Main", []);
                 },
-            };</script>
-    
+            };
+        </script>
     </body>
+    <style>
+        body{
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+        }
+    </style>
 </html>
