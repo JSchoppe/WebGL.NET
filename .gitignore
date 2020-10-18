@@ -6,5 +6,3 @@ bin/
 node_modules/
 obj/
 tools/
-
-!src/Demo/bin/
