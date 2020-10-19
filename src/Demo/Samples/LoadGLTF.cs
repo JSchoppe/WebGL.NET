@@ -164,9 +164,7 @@ namespace Demo
             var accessor = model.Accessors[index];
 
             if (!accessor.BufferView.HasValue)
-            {
                 return null;
-            }
 
             return model.BufferViews[accessor.BufferView.Value];
         }

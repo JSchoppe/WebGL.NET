@@ -2,6 +2,11 @@
 using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
+using glTFLoader.Schema;
+using Demo.Helpers;
+using glTFLoader;
+using Demo.DemoClasses.Loading;
+using System.IO;
 
 namespace Demo.DemoClasses
 {
@@ -10,184 +15,181 @@ namespace Demo.DemoClasses
     /// </summary>
     public sealed partial class CubesEnvironment : CanvasEnvironment
     {
-        // Store the indices of triangle trios.
-        ushort[] indices;
         // Streams of data to be accessed in linear order
         // by the graphics device.
-        WebGLBuffer vertexBuffer;
+        WebGLBuffer[] vertexBuffers;
         WebGLBuffer indexBuffer;
-        WebGLBuffer colorBuffer;
-        // Stores accessors to variables in compiled
-        // shader programs.
-        WebGLUniformLocation pMatrixUniform;
-        WebGLUniformLocation vMatrixUniform;
-        WebGLUniformLocation wMatrixUniform;
-        // Defines the operations applied to draw elements in the viewport.
-        Matrix projectionMatrix;
-        Matrix viewMatrix;
-        Matrix worldMatrix;
+
+
+        int indexBufferCount;
+        uint shaderNormalAttribute;
+        uint shaderPositionAttribute;
+        WebGLUniformLocation worldViewProjectionUniformLocation;
+        Matrix worldViewProjectionMatrix;
+
 
         public CubesEnvironment(JSObject canvas) : base(canvas) { }
 
         public override void Start()
         {
-            float[] vertices = new float[]
-            {
-                -1, -1, -1,
-                 1, -1, -1,
-                 1,  1, -1,
-
-                -1,  1, -1,
-                -1, -1,  1,
-                 1, -1,  1,
-
-                 1,  1,  1,
-                -1,  1,  1,
-                -1, -1, -1,
-
-                -1,  1, -1,
-                -1,  1,  1,
-                -1, -1,  1,
-
-                 1, -1, -1,
-                 1,  1, -1,
-                 1,  1,  1,
-
-                 1, -1,  1,
-                -1, -1, -1,
-                -1, -1,  1,
-
-                 1, -1,  1,
-                 1, -1, -1,
-                -1,  1, -1,
-
-                -1,  1,  1,
-                 1,  1,  1,
-                 1,  1, -1
-            };
-            vertexBuffer = WebGL.CreateArrayBuffer(vertices);
-
-            indices = new ushort[]
-            {
-                 0,  1,  2,
-                 0,  2,  3,
-
-                 4,  5,  6,
-                 4,  6,  7,
-
-                 8,  9, 10,
-                 8, 10, 11,
-
-                12, 13, 14,
-                12, 14, 15,
-
-                16, 17, 18,
-                16, 18, 19,
-
-                20, 21, 22,
-                20, 22, 23
-            };
-            indexBuffer = WebGL.CreateElementArrayBuffer(indices);
-
-            float[] colors = new float[]
-            {
-                1, 0, 0,
-                1, 0, 0,
-                1, 0, 0,
-                1, 0, 0,
-
-                0, 1, 0,
-                0, 1, 0,
-                0, 1, 0,
-                0, 1, 0,
-
-                0, 0, 1,
-                0, 0, 1,
-                0, 0, 1,
-                0, 0, 1,
-
-                1, 1, 0,
-                1, 1, 0,
-                1, 1, 0,
-                1, 1, 0,
-
-                0, 1, 1,
-                0, 1, 1,
-                0, 1, 1,
-                0, 1, 1,
-
-                1, 1, 1,
-                1, 1, 1,
-                1, 1, 1,
-                1, 1, 1
-            };
-            colorBuffer = WebGL.CreateArrayBuffer(colors);
-
             // Ask WebGL to compile our shaders that will run
             // on the graphics device.
-            var shaderProgram =
-                WebGL.InitializeShaders(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+            WebGLProgram shaderProgram = AssetsIO.LoadShader(WebGL,
+                "VertexShader.essl", "FragmentShader.essl");
+            // Ask WebGL to gives us accessors for the variables
+            // in our compiled shader.
+            shaderNormalAttribute = (uint)WebGL.GetAttribLocation(shaderProgram, "in_var_NORMAL");
+            shaderPositionAttribute = (uint)WebGL.GetAttribLocation(shaderProgram, "in_var_POSITION");
+            worldViewProjectionUniformLocation = WebGL.GetUniformLocation(shaderProgram, "worldViewProj");
 
-            // Hey WebGL, for that program we just compiled, could you give
-            // me accessors to modify some of the variables within?
-            pMatrixUniform = WebGL.GetUniformLocation(shaderProgram, "pMatrix");
-            vMatrixUniform = WebGL.GetUniformLocation(shaderProgram, "vMatrix");
-            wMatrixUniform = WebGL.GetUniformLocation(shaderProgram, "wMatrix");
+            LoadGltf("testCube.glb", out Gltf model, out byte[][] buffers);
 
-            // TODO still not 100% sure what all of this is doing.
-            WebGL.BindBuffer(WebGLRenderingContextBase.ARRAY_BUFFER, vertexBuffer);
-            var positionAttribute = (uint)WebGL.GetAttribLocation(shaderProgram, "position");
-            WebGL.VertexAttribPointer(positionAttribute, 3, WebGLRenderingContextBase.FLOAT, false, 0, 0);
-            WebGL.EnableVertexAttribArray(positionAttribute);
+            LoadMesh(model, out BufferView indicesBufferView, out BufferView[] attributesBufferView);
 
-            WebGL.BindBuffer(WebGLRenderingContextBase.ARRAY_BUFFER, colorBuffer);
-            var colorAttribute = (uint)WebGL.GetAttribLocation(shaderProgram, "color");
-            WebGL.VertexAttribPointer(colorAttribute, 3, WebGLRenderingContextBase.FLOAT, false, 0, 0);
-            WebGL.EnableVertexAttribArray(colorAttribute);
-
+            indexBufferCount = indicesBufferView.ByteLength / sizeof(ushort);
+            indexBuffer = WebGL.CreateBuffer();
             WebGL.BindBuffer(WebGLRenderingContextBase.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            var indexBufferView = buffers[indicesBufferView.Buffer];
+            var indices = new byte[indicesBufferView.ByteLength];
+            Array.Copy(indexBufferView, indicesBufferView.ByteOffset, indices, 0, indicesBufferView.ByteLength);
+            WebGL.BufferData(
+                WebGLRenderingContextBase.ELEMENT_ARRAY_BUFFER,
+                indices,
+                WebGLRenderingContextBase.STATIC_DRAW);
 
-            worldMatrix = Matrix.Identity;
+            var vertexBufferCount = attributesBufferView.Length;
+            vertexBuffers = new WebGLBuffer[vertexBufferCount];
+
+            for (var i = 0; i < vertexBufferCount; i++)
+            {
+                var vertexBufferView = attributesBufferView[i];
+                var buffer = WebGL.CreateBuffer();
+                WebGL.BindBuffer(WebGLRenderingContextBase.ARRAY_BUFFER, buffer);
+                var verticesBufferView = buffers[vertexBufferView.Buffer];
+                var vertices = new byte[vertexBufferView.ByteLength];
+                Array.Copy(
+                    verticesBufferView,
+                    vertexBufferView.ByteOffset,
+                    vertices,
+                    0,
+                    vertexBufferView.ByteLength);
+                WebGL.BufferData(
+                    WebGLRenderingContextBase.ARRAY_BUFFER,
+                    vertices,
+                    WebGLRenderingContextBase.STATIC_DRAW);
+                vertexBuffers[i] = buffer;
+            }
         }
+
+        private float angle = 0f;
+        private Matrix viewProjectionMatrix;
 
         public override void Update(float deltaTime)
         {
-            float aspectRatio = Width / Height;
+            var viewMatrix = Matrix.CreateLookAt(new Vector3(0, 0, 3), new Vector3(0, 0, 0), Vector3.UnitY);
+            var projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.PiOver4,
+                (float)Width / Height,
+                0.1f, 100f);
+            viewProjectionMatrix = Matrix.Multiply(viewMatrix, projectionMatrix);
 
-            // These values correspond to a camera frustum.
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-                (float)Math.PI / 4, aspectRatio, 0.1f, 1000f);
-
-            viewMatrix = Matrix.CreateLookAt(Vector3.UnitZ * 10, Vector3.Zero, Vector3.Up);
-
-            // Spin the world (not the cube).
-            Quaternion rotation = Quaternion.CreateFromYawPitchRoll(
-                deltaTime * 2,
-                deltaTime * 4,
-                deltaTime * 3);
-            worldMatrix *= Matrix.CreateFromQuaternion(rotation);
+            angle += deltaTime;
+            var offsetQuaternion = Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.PiOver2);
+            var rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.Forward, angle);
+            var worldMatrix = Matrix.CreateFromQuaternion(offsetQuaternion * rotationQuaternion);
+            worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
         }
 
         public override void Draw()
         {
             base.Draw();
 
-            // Hey WebGL, can you update this data in the shader program?
-            WebGL.UniformMatrix4fv(pMatrixUniform, false, projectionMatrix.ToArray());
-            WebGL.UniformMatrix4fv(vMatrixUniform, false, viewMatrix.ToArray());
-            WebGL.UniformMatrix4fv(wMatrixUniform, false, worldMatrix.ToArray());
+            WebGL.BindBuffer(WebGLRenderingContextBase.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-            // Hey WebGL, draw me some
+            // Normals
+            WebGL.BindBuffer(WebGLRenderingContextBase.ARRAY_BUFFER, vertexBuffers[0]);
+            WebGL.EnableVertexAttribArray(shaderNormalAttribute);
+            WebGL.VertexAttribPointer(shaderNormalAttribute, 3, WebGLRenderingContextBase.FLOAT, false, 12, 0);
+
+            // Positions
+            WebGL.BindBuffer(WebGLRenderingContextBase.ARRAY_BUFFER, vertexBuffers[1]);
+            WebGL.EnableVertexAttribArray(shaderPositionAttribute);
+            WebGL.VertexAttribPointer(shaderPositionAttribute, 3, WebGLRenderingContextBase.FLOAT, false, 12, 0);
+
+            WebGL.UniformMatrix4fv(worldViewProjectionUniformLocation, false, worldViewProjectionMatrix.ToArray());
+
             WebGL.DrawElements(
-                // triangles
                 WebGLRenderingContextBase.TRIANGLES,
-                // with the vertex indices (all of them)
-                indices.Length,
-                // and this is the memory size of each vert.
+                indexBufferCount,
                 WebGLRenderingContextBase.UNSIGNED_SHORT,
-                // You can start at the beginning.
-                0
-            );
+                0);
         }
+
+
+
+
+
+
+        private void LoadMesh(Gltf model, out BufferView indicesBufferView, out BufferView[] attributesBufferView)
+        {
+            var mesh = model.Meshes[0];
+            indicesBufferView = null;
+            attributesBufferView = null;
+
+            for (var i = 0; i < mesh.Primitives.Length; i++)
+            {
+                var primitive = mesh.Primitives[i];
+
+                if (primitive.Indices.HasValue)
+                {
+                    indicesBufferView = ReadAccessor(model, primitive.Indices.Value);
+                }
+
+                var attributesCount = primitive.Attributes.Values.Count;
+                attributesBufferView = new BufferView[attributesCount];
+                var insertIndex = 0;
+
+                foreach (var attribute in primitive.Attributes)
+                {
+                    attributesBufferView[insertIndex++] = ReadAccessor(model, attribute.Value);
+                }
+            }
+        }
+
+        private void LoadGltf(string filename, out Gltf model, out byte[][] buffers)
+        {
+            using (var modelStream = EmbeddedResourceHelper.Load(filename))
+            {
+                model = Interface.LoadModel(modelStream);
+            }
+
+            var buffersLength = model.Buffers.Length;
+            buffers = new byte[buffersLength][];
+
+            for (var i = 0; i < buffersLength; i++)
+            {
+                byte[] bufferBytes;
+
+                using (Stream modelStream = EmbeddedResourceHelper.Load(filename))
+                {
+                    bufferBytes = Interface.LoadBinaryBuffer(modelStream);
+                }
+
+                buffers[i] = bufferBytes;
+            }
+        }
+
+        private BufferView ReadAccessor(Gltf model, int index)
+        {
+            var accessor = model.Accessors[index];
+
+            if (!accessor.BufferView.HasValue)
+            {
+                return null;
+            }
+
+            return model.BufferViews[accessor.BufferView.Value];
+        }
+
     }
 }

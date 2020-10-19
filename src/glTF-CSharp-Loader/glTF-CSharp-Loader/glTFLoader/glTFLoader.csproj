@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.3;net35</TargetFrameworks>
+    <Authors>Khronos Group</Authors>
+    <Copyright></Copyright>
+    <Description>C# reference loader for glTF 2.0</Description>
+    <Company></Company>
+    <Product>glTF2Loader</Product>
+    <PackageId>glTF2Loader</PackageId>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/KhronosGroup/glTF-CSharp-Loader/blob/master/README.md</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/KhronosGroup/glTF-CSharp-Loader/blob/master/LICENSE.md</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/KhronosGroup/glTF-CSharp-Loader</RepositoryUrl>
+    <PackageIconUrl>https://github.com/KhronosGroup/glTF/blob/master/specification/figures/gltf.png</PackageIconUrl>
+    <PackageTags>glTF loader C#</PackageTags>
+    <Version>1.1.3-alpha</Version>
+  </PropertyGroup>  
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+</Project>

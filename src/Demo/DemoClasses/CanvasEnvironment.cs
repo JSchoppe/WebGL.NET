@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+﻿using WaveEngine.Common.Math;
 using WebAssembly;
 using WebGLDotNET;
 using SkiaSharp;

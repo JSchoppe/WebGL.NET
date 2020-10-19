@@ -7,6 +7,7 @@ namespace Demo.Helpers
 {
     public static class StampHelper
     {
+        /*
         // https://www.meziantou.net/2018/09/24/getting-the-date-of-build-of-a-net-assembly-at-runtime
         public static DateTime GetBuildDate(Assembly assembly)
         {
@@ -38,5 +39,6 @@ namespace Demo.Helpers
 
             return string.Empty;
         }
+        */
     }
 }
